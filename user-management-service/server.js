@@ -7,6 +7,7 @@ const userRoutes = require('./routes/users');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const MONGO_URI = process.env.MONGO_URI;
 
 app.use(cors());
 app.use(express.json());
@@ -16,7 +17,7 @@ app.get('/', (req, res) => {
     res.send('Welcome to PulsePoint User Management Service');
 });
 
-mongoose.connect(process.env.MONGO_URI, {
+mongoose.connect(MONGO_URI, {
 }).then(() => {
   console.log('Connected to MongoDB');
 }).catch((err) => {
