@@ -26,8 +26,10 @@ const RegisterPage = () => {
       return;
     }
 
+    const API_BASE_URL_USER = 'http://localhost:3001/users';
+
     try {
-      const response = await fetch('http://localhost:3001/users/register', {
+      const response = await fetch(`${API_BASE_URL_USER}/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

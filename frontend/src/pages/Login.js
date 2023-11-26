@@ -12,8 +12,10 @@ const LoginPage = () => {
         event.preventDefault();
     
         // Make API request to your login endpoint
+        const API_BASE_URL_USER = 'http://localhost:3001/users';
+
         try {
-          const response = await fetch('http://localhost:3001/users/login', {
+          const response = await fetch(`${API_BASE_URL_USER}/login`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -40,7 +42,7 @@ const LoginPage = () => {
               duration: 3000,
               isClosable: true,
             });
-            navigate('/dashboard'); // Replace with your dashboard route
+            navigate('/dashboard');
           } else {
             const errorData = await response.json();
             // Display error message
