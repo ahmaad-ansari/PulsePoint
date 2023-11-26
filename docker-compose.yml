@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./database/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    environment:
+      MONGO_INITDB_DATABASE: pulsepointdb
+
+  camera-management-service:
+    build: ./camera-management-service
+    ports:
+      - "3002:3002"
+    depends_on:
+      - mongodb
+
+  user-management-service:
+    build: ./user-management-service
+    ports:
+      - "3001:3001"
+    depends_on:
+      - mongodb
+
+  video-storage-service:
+    build: ./video-storage-service
+    ports:
+      - "3003:3003"
+    depends_on:
+      - mongodb
+
+  video-analytics-service:
+    build: ./video-analytics-service
+    ports:
+      - "3004:3004"
+    depends_on:
+      - mongodb
+
+  # frontend:
+  #   build: ./frontend
+  #   ports:
+  #     - "80:80"
+  #   depends_on:
+  #     - camera-management-service
+  #     - user-management-service
+  #     - video-storage-service
+  #     - video-analytics-service
+
+volumes:
+  mongodb_data:

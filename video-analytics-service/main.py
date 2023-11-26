@@ -17,7 +17,7 @@ class CameraProcessor:
 
     @staticmethod
     def fetch_cameras():
-        url = 'http://10.0.0.2:3002/cameras'  # Update with your cameras endpoint
+        url = 'http://camera-management-service:3002/cameras'  # Update with your cameras endpoint
         try:
             response = requests.get(url)
             if response.status_code == 200:
@@ -92,7 +92,7 @@ class CameraProcessor:
                 threading.Thread(target=self.record_video, args=(frame,)).start()
 
     def upload_video(self, filepath):
-        url = 'http://10.0.0.2:3003/videos/upload'  # Update with your video upload endpoint
+        url = 'http://video-storage-service:3003/videos/upload'  # Update with your video upload endpoint
         files = {'video': open(filepath, 'rb')}
         data = {
             'cameraId': self.camera_id,
