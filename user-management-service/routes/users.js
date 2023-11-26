@@ -68,11 +68,14 @@ router.post('/login', async (req, res) => {
             { expiresIn: '1h' }
         );
 
-        res.status(200).json({ message: 'Login successful', token });
+        // Respond with user details and token upon successful login
+        const { firstName, lastName, email } = user;
+        res.status(200).json({ message: 'Login successful', token, firstName, lastName, email, username });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
+
   
   
 

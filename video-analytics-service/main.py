@@ -37,11 +37,12 @@ class CameraProcessor:
             os.makedirs(recordings_dir)
 
         sanitized_url = self.stream_url.replace('://', '_').replace('/', '_')
-        filename = f"motion_{sanitized_url}_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.avi"
+        filename = f"motion_{sanitized_url}_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.mp4"
         filepath = os.path.join(recordings_dir, filename)
 
-        fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         out = cv2.VideoWriter(filepath, fourcc, 20.0, (640, 480))
+
 
         out.write(initial_frame)  # Write the frame that detected motion
 
@@ -93,7 +94,8 @@ class CameraProcessor:
 
     def upload_video(self, filepath):
         url = 'http://video-storage-service:3003/videos/upload'  # Update with your video upload endpoint
-        files = {'video': open(filepath, 'rb')}
+        filename = os.path.basename(filepath)
+        files = {'video': (filename, open(filepath, 'rb'), 'video/mp4')}  # Adjust content type if needed
         data = {
             'cameraId': self.camera_id,
             'name': self.camera_name,
@@ -107,7 +109,7 @@ class CameraProcessor:
         except requests.RequestException as e:
             print(f"Error uploading video: {e}")
         finally:
-            files['video'].close()  # Close the file
+            files['video'][1].close()  # Close the file handle
             os.remove(filepath)  # Remove the file after uploading
 
 
