@@ -4,6 +4,7 @@ import requests
 import threading
 import datetime
 import os
+import time
 
 
 class CameraProcessor:
@@ -14,19 +15,6 @@ class CameraProcessor:
         self.camera_location = camera_data['location']
         self.backSub = cv2.createBackgroundSubtractorMOG2()
         self.is_recording = False
-
-    @staticmethod
-    def fetch_cameras():
-        url = 'http://camera-management-service:3002/cameras'  # Update with your cameras endpoint
-        try:
-            response = requests.get(url)
-            if response.status_code == 200:
-                return response.json()
-            else:
-                print(f"Failed to fetch cameras: {response.status_code}")
-        except requests.RequestException as e:
-            print(f"Error fetching cameras: {e}")
-        return []
 
     def record_video(self, initial_frame):
         max_post_motion_duration = 2  # seconds
@@ -93,7 +81,7 @@ class CameraProcessor:
                 threading.Thread(target=self.record_video, args=(frame,)).start()
 
     def upload_video(self, filepath):
-        url = 'http://video-storage-service:3003/videos/upload'  # Update with your video upload endpoint
+        url = 'http://10.0.0.2:3003/videos/upload'  # Update with your video upload endpoint
         filename = os.path.basename(filepath)
         files = {'video': (filename, open(filepath, 'rb'), 'video/mp4')}  # Adjust content type if needed
         data = {
@@ -112,6 +100,40 @@ class CameraProcessor:
             files['video'][1].close()  # Close the file handle
             os.remove(filepath)  # Remove the file after uploading
 
+    def stop(self):
+        self.active = False  # Set a flag to stop the camera processing
+
+
+def fetch_cameras():
+    url = 'http://10.0.0.127:3002/cameras'  # Update with your cameras endpoint
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            print(f"Failed to fetch cameras: {response.status_code}")
+    except requests.RequestException as e:
+        print(f"Error fetching cameras: {e}")
+    return []
+
+def manage_camera_processors(current_processors, new_camera_data):
+    new_processors = {}
+
+    # Stop and remove processors for cameras that are no longer available
+    for camera_id, processor in current_processors.items():
+        if camera_id not in [camera['_id'] for camera in new_camera_data]:
+            processor.stop()
+        else:
+            new_processors[camera_id] = processor
+
+    # Add processors for new cameras
+    for camera in new_camera_data:
+        if camera['_id'] not in current_processors:
+            new_processor = CameraProcessor(camera)
+            new_processors[camera['_id']] = new_processor
+            threading.Thread(target=new_processor.process_stream).start()
+
+    return new_processors
 
 def start_camera_streams():
     cameras_data = CameraProcessor.fetch_cameras()
@@ -125,4 +147,24 @@ def start_camera_streams():
     for thread in threads:
         thread.join()
 
-start_camera_streams()
+def main():
+    camera_processors = {}
+    refresh_interval = 60  # seconds
+
+    while True:
+        try:
+            camera_data = fetch_cameras()
+            camera_processors = manage_camera_processors(camera_processors, camera_data)
+            time.sleep(refresh_interval)
+        except KeyboardInterrupt:
+            break
+        except Exception as e:
+            print(f"Error in main loop: {e}")
+            time.sleep(10)  # Wait for a bit before retrying
+
+    # Clean up
+    for processor in camera_processors.values():
+        processor.stop()
+
+if __name__ == "__main__":
+    main()

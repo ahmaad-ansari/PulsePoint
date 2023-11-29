@@ -25,10 +25,12 @@ const LoginPage = () => {
     
           if (response.ok) {
             const data = await response.json();
+            console.log(data);
     
             // Save user data and token in localStorage or sessionStorage
             localStorage.setItem('token', data.token);
             localStorage.setItem('userData', JSON.stringify({
+              id: data._id,
               firstName: data.firstName,
               lastName: data.lastName,
               email: data.email,

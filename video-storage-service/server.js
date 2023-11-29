@@ -4,10 +4,15 @@ const cors = require('cors');
 const express = require('express');
 const mongoose = require('mongoose');
 const videoRoutes = require('./routes/videos');
+const morgan = require('morgan'); // Adding Morgan for logging
+
 
 const app = express();
 const PORT = process.env.PORT || 3003;
 const MONGO_URI = process.env.MONGO_URI;
+
+// Logging middleware setup using Morgan
+app.use(morgan('dev'));
 
 app.use(cors());
 app.use(express.json());

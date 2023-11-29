@@ -33,8 +33,6 @@ router.post('/register', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
-  
-  
 
 // User Login
 router.post('/login', async (req, res) => {
@@ -65,18 +63,16 @@ router.post('/login', async (req, res) => {
         const token = jwt.sign(
             { userId: user._id, username: user.username },
             process.env.JWT_SECRET,
-            { expiresIn: '1h' }
+            { expiresIn: '2h' }
         );
 
-        // Respond with user details and token upon successful login
-        const { firstName, lastName, email } = user;
-        res.status(200).json({ message: 'Login successful', token, firstName, lastName, email, username });
+        // Respond with user details, including document ID, and token upon successful login
+        const { _id, firstName, lastName, email } = user;
+        res.status(200).json({ message: 'Login successful', token, _id, firstName, lastName, email, username });
+
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
-
   
-  
-
 module.exports = router;

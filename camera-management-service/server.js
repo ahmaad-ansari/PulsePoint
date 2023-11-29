@@ -4,12 +4,16 @@ const cors = require('cors');
 const CameraDiscovery = require('./discovery');
 const express = require('express');
 const mongoose = require('mongoose');
+const morgan = require('morgan'); // Adding Morgan for logging
 const cameraRoutes = require('./routes/cameras');
 
 const app = express();
 const PORT = process.env.PORT || 3002;
 const MONGO_URI = process.env.MONGO_URI;
 const discovery = new CameraDiscovery();
+
+// Logging middleware setup using Morgan
+app.use(morgan('dev'));
 
 discovery.startDiscovery();
 
