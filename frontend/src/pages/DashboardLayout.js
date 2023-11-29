@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Box,
   Flex,
@@ -9,23 +9,27 @@ import {
   Button,
   Heading,
 } from '@chakra-ui/react';
-import { FaHome, FaCamera, FaSignOutAlt } from 'react-icons/fa';
+import { FaHome, FaCamera, FaSignOutAlt, FaPlus, FaEye } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import Home from '../components/Home'; // Replace with the actual path to your Home component
+import CameraManage from '../components/CameraManage'; // Replace with the actual path to your Home component
 import CameraView from '../components/CameraView'; // Replace with the actual path to your AddCamera component
+import Dashboard from '../components/Dashboard';
 
 const DashboardLayout = ({ children }) => {
-  const [activeTab, setActiveTab] = useState('home');
+  const [activeTab, setActiveTab] = useState('dashboard'); // Set 'dashboard' as the default active tab
   const navigate = useNavigate();
+  const firstTabRef = useRef(null); // Reference to the first tab
 
   const tabs = [
-    { name: 'home', label: 'Home', icon: FaHome },
-    { name: 'addCamera', label: 'Add Camera', icon: FaCamera },
+    { name: 'dashboard', label: 'Dashboard', icon: FaEye },
+    { name: 'manageCamera', label: 'My Cameras', icon: FaCamera },
+    { name: 'addCamera', label: 'Add Cameras', icon: FaPlus },
     // Add other tabs here using icons from react-icons
   ];
 
   const tabComponents = {
-    home: <Home />,
+    dashboard: <Dashboard />,
+    manageCamera: <CameraManage />,
     addCamera: <CameraView />,
     // Add other components here
   };
@@ -39,6 +43,13 @@ const DashboardLayout = ({ children }) => {
     localStorage.removeItem('userData');
     navigate('/login', { replace: true });
   };
+
+  useEffect(() => {
+    // Trigger a click event on the first tab when the component mounts
+    if (firstTabRef.current) {
+      firstTabRef.current.click();
+    }
+  }, []); // Empty dependency array ensures this effect runs only once on mount
 
   return (
     <Flex h="100vh">
@@ -54,9 +65,10 @@ const DashboardLayout = ({ children }) => {
         <Heading as="h1" size="md" mb="4">
           PulsePoint
         </Heading>
-        {tabs.map(tab => (
+        {tabs.map((tab, index) => (
           <Flex
             key={tab.name}
+            ref={index === 0 ? firstTabRef : null} // Ref added to the first tab
             align="center"
             p="3"
             borderRadius="md"

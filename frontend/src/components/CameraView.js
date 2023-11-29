@@ -136,11 +136,11 @@ const CameraView = () => {
 
   return (
     <>
-      <Text fontSize="xl" fontWeight="bold" mb="4">
+      <Text fontSize="2xl" fontWeight="bold" mb="6">
         Camera List
       </Text>
       {cameras.length === 0 ? (
-        <Text>There are no cameras for you to add</Text>
+        <Text textAlign="center">There are no cameras for you to add</Text>
       ) : (
         <Table variant="simple">
           <Thead>
@@ -217,7 +217,7 @@ const CameraView = () => {
                         leftIcon={<FaPlus />}
                         onClick={() => handleAddToPersonalList(camera._id)}
                       >
-                        Add to Personal List
+                        Add to List
                       </Button>
                     </>
                   )}

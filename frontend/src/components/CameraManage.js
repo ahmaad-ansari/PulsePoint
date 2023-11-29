@@ -2,31 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Text, Table, Thead, Tbody, Tr, Th, Td, Button, Input, useToast } from '@chakra-ui/react';
 import { FaEdit, FaSave, FaTrash, FaEye } from 'react-icons/fa';
 
-const VideoPopup = ({ url, onClose }) => {
-  return (
-    <div className="video-popup">
-      <div className="video-popup-content">
-        <span className="close" onClick={onClose}>
-          &times;
-        </span>
-        <iframe
-          title="Live Stream Video"
-          src={url}
-          allowFullScreen
-          className="video-iframe"
-        />
-      </div>
-    </div>
-  );
-};
-
-const Home = () => {
+const CameraManage = () => {
   const [subscribedCameras, setSubscribedCameras] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [editedName, setEditedName] = useState('');
   const [editedLocation, setEditedLocation] = useState('');
-  const [isVideoPopupVisible, setIsVideoPopupVisible] = useState(false);
-  const [currentStreamUrl, setCurrentStreamUrl] = useState('');
   
   const toast = useToast();
 
@@ -141,22 +121,9 @@ const Home = () => {
     }
   };
 
-  const handleView = (cameraId) => {
-    const camera = subscribedCameras.find(c => c._id === cameraId);
-    if (camera) {
-      setCurrentStreamUrl(camera.streamUrl); // Assuming streamUrl is a property of your camera object
-      setIsVideoPopupVisible(true);
-    }
-  };
-
-  const handleCloseVideoPopup = () => {
-    setIsVideoPopupVisible(false);
-    setCurrentStreamUrl('');
-  };
-
   return (
     <>
-      <Text fontSize="xl" fontWeight="bold" mb="4">
+      <Text fontSize="2xl" fontWeight="bold" mb="6">
         Subscribed Cameras
       </Text>
       {subscribedCameras.length === 0 ? (
@@ -244,18 +211,6 @@ const Home = () => {
                       >
                         Remove
                       </Button>
-                      <Button
-                        colorScheme="teal"
-                        size="sm"
-                        leftIcon={<FaEye />}
-                        onClick={() =>
-                          handleView(
-                            camera._id
-                          )
-                        }
-                      >
-                        View
-                      </Button>
                     </>
                   )}
                 </Td>
@@ -264,14 +219,8 @@ const Home = () => {
           </Tbody>
         </Table>
       )}
-      {isVideoPopupVisible && (
-        <VideoPopup
-          url={currentStreamUrl}
-          onClose={handleCloseVideoPopup}
-        />
-      )}
     </>
   );
 };
 
-export default Home;
+export default CameraManage;
