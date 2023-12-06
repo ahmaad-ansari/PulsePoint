@@ -34,7 +34,7 @@ Handles video analytics and processing tasks.
 
 #### Frontend
 
-The user interface to interact with the entire system. It depends on all other services.
+The user interface to interact with the entire system. It depends on all the other services.
 
 - **Dockerfile:** [Link to Dockerfile](./frontend/Dockerfile)
 
