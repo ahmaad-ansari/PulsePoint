@@ -17,39 +17,50 @@ class CameraProcessor:
         self.is_recording = False
 
     def record_video(self, initial_frame):
+        # Function to record video upon detecting motion
+        
+        # Initialize variables for motion detection
         max_post_motion_duration = 2  # seconds
         last_motion_time = datetime.datetime.now()
 
+        # Create directory for recordings if it doesn't exist
         recordings_dir = 'recordings'
         if not os.path.exists(recordings_dir):
             os.makedirs(recordings_dir)
 
+        # Define file path and name for the recorded video
         sanitized_url = self.stream_url.replace('://', '_').replace('/', '_')
         filename = f"motion_{sanitized_url}_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.mp4"
         filepath = os.path.join(recordings_dir, filename)
 
+        # Initialize video writer
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         out = cv2.VideoWriter(filepath, fourcc, 20.0, (640, 480))
 
+        # Write initial frame upon motion detection
+        out.write(initial_frame)
 
-        out.write(initial_frame)  # Write the frame that detected motion
-
+        # Loop to continuously capture frames and record the video
         for frame in self.read_stream():
             current_time = datetime.datetime.now()
 
+            # Check for motion detection in the frame
             if self.is_motion_detected(frame):
                 print("Motion is detected from ", self.stream_url)
                 last_motion_time = current_time  # Update the last motion time
 
+            # Stop recording if no motion detected for a certain duration
             if (current_time - last_motion_time).seconds > max_post_motion_duration:
-                break  # Stop recording if no motion detected for a certain duration
+                break
 
             out.write(frame)
 
+        # Release video writer and upload the recorded video
         out.release()
         self.is_recording = False
         self.upload_video(filepath)
 
+    # Function to detect motion in the frame
     def is_motion_detected(self, frame):
         fg_mask = self.backSub.apply(frame)
         _, thresh = cv2.threshold(fg_mask, 25, 255, cv2.THRESH_BINARY)
@@ -59,6 +70,7 @@ class CameraProcessor:
                 return True
         return False
 
+    # Function to read frames from the stream
     def read_stream(self):
         stream = requests.get(self.stream_url, stream=True)
         byte_stream = bytes()
@@ -72,6 +84,7 @@ class CameraProcessor:
                 frame = cv2.imdecode(np.frombuffer(jpg, dtype=np.uint8), cv2.IMREAD_COLOR)
                 yield frame
 
+    # Function to continuously process the stream for motion detection
     def process_stream(self):
         for frame in self.read_stream():
             if frame is None:
@@ -80,8 +93,9 @@ class CameraProcessor:
                 self.is_recording = True
                 threading.Thread(target=self.record_video, args=(frame,)).start()
 
+    # Function to upload the recorded video
     def upload_video(self, filepath):
-        url = 'http://10.0.0.2:3003/videos/upload'  # Update with your video upload endpoint
+        url = 'http://localhost:3003/videos/upload'  # Update with your video upload endpoint
         filename = os.path.basename(filepath)
         files = {'video': (filename, open(filepath, 'rb'), 'video/mp4')}  # Adjust content type if needed
         data = {
@@ -100,12 +114,14 @@ class CameraProcessor:
             files['video'][1].close()  # Close the file handle
             os.remove(filepath)  # Remove the file after uploading
 
+    # Function to stop camera processing
     def stop(self):
         self.active = False  # Set a flag to stop the camera processing
 
 
 def fetch_cameras():
-    url = 'http://10.0.0.127:3002/cameras'  # Update with your cameras endpoint
+    # Function to fetch camera data from the endpoint
+    url = 'http://localhost:3002/cameras'  # Update with your cameras endpoint
     try:
         response = requests.get(url)
         if response.status_code == 200:
@@ -116,7 +132,9 @@ def fetch_cameras():
         print(f"Error fetching cameras: {e}")
     return []
 
+
 def manage_camera_processors(current_processors, new_camera_data):
+    # Function to manage camera processors based on available cameras
     new_processors = {}
 
     # Stop and remove processors for cameras that are no longer available
@@ -135,7 +153,9 @@ def manage_camera_processors(current_processors, new_camera_data):
 
     return new_processors
 
+
 def start_camera_streams():
+    # Function to start camera streams
     cameras_data = CameraProcessor.fetch_cameras()
     print(cameras_data)  # Add this line to inspect the fetched camera data
 
@@ -146,6 +166,7 @@ def start_camera_streams():
         thread.start()
     for thread in threads:
         thread.join()
+
 
 def main():
     camera_processors = {}
@@ -165,6 +186,7 @@ def main():
     # Clean up
     for processor in camera_processors.values():
         processor.stop()
+
 
 if __name__ == "__main__":
     main()

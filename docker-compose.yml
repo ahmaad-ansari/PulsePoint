@@ -39,15 +39,16 @@ services:
     depends_on:
       - mongodb
 
-  # frontend:
-  #   build: ./frontend
-  #   ports:
-  #     - "80:80"
-  #   depends_on:
-  #     - camera-management-service
-  #     - user-management-service
-  #     - video-storage-service
-  #     - video-analytics-service
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - camera-management-service
+      - user-management-service
+      - video-storage-service
+      - video-analytics-service
+
 
 volumes:
   mongodb_data:

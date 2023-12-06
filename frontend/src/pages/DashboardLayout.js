@@ -9,11 +9,12 @@ import {
   Button,
   Heading,
 } from '@chakra-ui/react';
-import { FaHome, FaCamera, FaSignOutAlt, FaPlus, FaEye } from 'react-icons/fa';
+import { FaHome, FaCamera, FaSignOutAlt, FaPlus, FaEye, FaFolder } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import CameraManage from '../components/CameraManage'; // Replace with the actual path to your Home component
 import CameraView from '../components/CameraView'; // Replace with the actual path to your AddCamera component
 import Dashboard from '../components/Dashboard';
+import Recordings from '../components/Recordings';
 
 const DashboardLayout = ({ children }) => {
   const [activeTab, setActiveTab] = useState('dashboard'); // Set 'dashboard' as the default active tab
@@ -24,6 +25,7 @@ const DashboardLayout = ({ children }) => {
     { name: 'dashboard', label: 'Dashboard', icon: FaEye },
     { name: 'manageCamera', label: 'My Cameras', icon: FaCamera },
     { name: 'addCamera', label: 'Add Cameras', icon: FaPlus },
+    { name: 'record', label: 'Recordings', icon: FaFolder },
     // Add other tabs here using icons from react-icons
   ];
 
@@ -31,6 +33,7 @@ const DashboardLayout = ({ children }) => {
     dashboard: <Dashboard />,
     manageCamera: <CameraManage />,
     addCamera: <CameraView />,
+    record: <Recordings />,
     // Add other components here
   };
 

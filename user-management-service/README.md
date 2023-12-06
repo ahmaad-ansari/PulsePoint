@@ -1,57 +1,66 @@
 # User Management Service
 
-This service handles user registration and login functionalities, storing user information securely in a MongoDB database and providing authentication using JSON Web Tokens (JWT) and bcrypt.
+This service manages user-related operations, including registration and authentication. It provides endpoints for user registration, login, and authentication using JSON Web Tokens (JWT).
 
-## Features
+## Prerequisites
 
-- **User Registration**: Allows users to register by providing their first name, last name, username, email, and password.
-- **User Login**: Authenticates users using JWT and bcrypt, providing access to authorized endpoints.
-- **Token Expiry**: JWT tokens expire after 1 hour for enhanced security.
+- Node.js installed
+- MongoDB installed and running
+- `.env` file with configuration (see `.env.example`)
 
-## Installation
+## Setup
 
-1. Clone this repository.
-2. Install dependencies using `npm install`.
-3. Set up a MongoDB database and provide the connection URI in the `.env` file.
-4. Run the service using `npm start`.
+1. Clone the repository.
+2. Install dependencies: `npm install`
+3. Create a `.env` file based on `.env.example` and set the required environment variables.
+4. Start the server: `npm start`
 
-## Usage
+## Project Structure
 
-### Register a User
+- **`/models`**: Contains Mongoose models (e.g., `User.js`) for MongoDB.
+- **`/routes`**: Defines API endpoints for user-related operations.
+- **`/middleware`**: Custom middleware functions, like authentication middleware (`auth.js`).
+- **`server.js`**: Entry point of the application.
 
-```http
-POST /users/register
-```
+## Available Scripts
 
-Provide the following fields in the request body:
+- `npm start`: Starts the server.
+- `npm run dev`: Starts the server in development mode using nodemon.
+- `npm test`: Runs the test suite.
 
-```json
-{
-  "firstName": "John",
-  "lastName": "Doe",
-  "username": "johndoe",
-  "email": "john@example.com",
-  "password": "password123"
-}
-```
+## Endpoints
+
+### User Registration
+
+- **Endpoint**: `/users/register`
+- **Method**: `POST`
+- **Request Body**:
+  - `firstName`: First name of the user
+  - `lastName`: Last name of the user
+  - `username`: Username for authentication
+  - `email`: Email address of the user
+  - `password`: Password for authentication
+- **Response**: Success message or error if registration fails.
 
 ### User Login
 
-```http
-POST /users/login
-```
-Provide the following fields in the request body to receive a JWT token for authentication:
+- **Endpoint**: `/users/login`
+- **Method**: `POST`
+- **Request Body**:
+  - `username`: Username for authentication
+  - `password`: Password for authentication
+- **Response**: JWT token for successful login, user details (ID, name, email, username).
 
-```json
-{
-  "username": "johndoe",
-  "password": "password123"
-}
-```
+### User Authentication
 
-## Environment Variables
+- **Middleware**: `auth.js`
+- Validates JWT token sent in the `Authorization` header.
+- Protects routes that require authentication.
 
-Create a `.env` file in the root directory and include the following variables:
+## Technologies Used
 
-- `PORT`: Port number for the server
-- `MONGO_URI`: MongoDB connection URI
+- **Node.js**: JavaScript runtime environment
+- **Express**: Web framework for Node.js
+- **MongoDB**: NoSQL database
+- **Mongoose**: MongoDB object modeling tool
+- **JSON Web Tokens (JWT)**: For authentication and authorization

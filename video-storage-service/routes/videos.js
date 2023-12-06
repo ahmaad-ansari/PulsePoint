@@ -2,7 +2,9 @@ const express = require('express');
 const multer = require('multer');
 const Video = require('../models/video');
 const path = require('path');
-const fs = require('fs/promises');
+const fsp = require('fs/promises');
+const fs = require('fs');
+
 
 const router = express.Router();
 
@@ -47,6 +49,21 @@ router.get('/', async (req, res) => {
     res.status(200).send(videos);
 });
 
+// GET endpoint to list videos based on cameraIds
+router.post('/videosByCameraIds', async (req, res) => {
+    try {
+      const { cameraIds } = req.body;
+  
+      // Find videos that match the provided cameraIds
+      const videos = await Video.find({ cameraId: { $in: cameraIds } });
+  
+      res.status(200).send(videos);
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
+  });
+  
+
 // GET endpoint to download a specific video
 router.get('/:id', async (req, res) => {
     try {
@@ -69,7 +86,7 @@ router.delete('/:id', async (req, res) => {
         }
 
         // Delete the file from the file system
-        await fs.unlink(path.resolve('storage/', video.filename));
+        await fsp.unlink(path.resolve('storage/', video.filename));
 
         // Remove the video from the database
         await Video.findByIdAndDelete(req.params.id);
@@ -82,6 +99,37 @@ router.delete('/:id', async (req, res) => {
         res.status(500).send(error.message);
     }
 });
+
+// GET endpoint to stream a specific video
+router.get('/:id/stream', async (req, res) => {
+    try {
+      const video = await Video.findById(req.params.id);
+      if (!video) {
+        return res.status(404).send('Video not found');
+      }
+  
+      const pathToFile = video.filePath;
+  
+      // Check if the file exists using promises
+      try {
+        await fs.promises.access(pathToFile, fs.constants.F_OK);
+      } catch (err) {
+        return res.status(404).send('Video file not found');
+      }
+  
+      // Set the appropriate content type for streaming the video
+      res.setHeader('Content-Type', 'video/mp4');
+  
+      // Create a readable stream from the video file and pipe it to the response
+      const stream = fs.createReadStream(pathToFile);
+      stream.pipe(res);
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
+  });
+
+  
+
 
 
 module.exports = router;

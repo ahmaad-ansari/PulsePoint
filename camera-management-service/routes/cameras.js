@@ -106,10 +106,6 @@ router.delete('/:cameraId/removeUser/:userId', async (req, res) => {
   }
 });
 
-
-
-
-
 // Delete a camera
 router.delete('/:id', auth, async (req, res) => {
   try {
@@ -186,6 +182,5 @@ router.get('/stream/:cameraId', auth, async (req, res) => {
     res.status(500).send('Error accessing the camera stream');
   }
 });
-
 
 module.exports = router;
